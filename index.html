@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DHT Readings</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="calendar.css" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.js"
+      integrity="sha512-7DgGWBKHddtgZ9Cgu8aGfJXvgcVv4SWSESomRtghob4k4orCBUTSRQ4s5SaC2Rz+OptMqNk0aHHsaUBk6fzIXw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+  </head>
+  <body>
+    <div class="data-head">Predictive Irrigation System</div>
+
+    <div class="data-container">
+      <div class="data-item">
+        <div class="data-item-box">
+          <img src="https://img.icons8.com/?size=96&id=12997&format=png" />
+          <h2>Temperature</h2>
+        </div>
+        <p class="value" id="temperature">- &#8451;</p>
+      </div>
+      <div class="data-item">
+        <div class="data-item-box">
+          <img src="https://img.icons8.com/?size=96&id=13001&format=png" />
+          <h2>Humidity</h2>
+        </div>
+
+        <p class="value" id="humidity">-%</p>
+      </div>
+      <div class="data-item">
+        <div class="data-item-box">
+          <img
+            src="https://img.icons8.com/?size=96&id=bHcxQc0TfmBm&format=png"
+          />
+          <h2>Soil Moisture</h2>
+        </div>
+
+        <p class="value" id="soil">-%</p>
+      </div>
+    </div>
+
+    <!-- charts -->
+    <div class="chart-div">
+      <div class="crop-chart">
+        <canvas id="myChart"></canvas>
+      </div>
+    </div>
+
+    <!-- crops -->
+
+    <div class="container">
+      <div class="container-box">
+        <h1>Crop Selection System</h1>
+        <label for="crop-select">Choose a crop:</label>
+        <select id="crop-select">
+          <option value="" disabled selected>Select a crop</option>
+          <option value="wheat">Wheat</option>
+          <option value="rice">Rice</option>
+          <option value="maize">Maize</option>
+        </select>
+        <div id="crop-data">
+          <h2>Crop Details</h2>
+          <div id="details"></div>
+        </div>
+        <button id="compare-button">Compare</button>
+      </div>
+      <!-- <div style="background-color: aqua" style="width: 4px">hello</div> -->
+      <div class="container-box">
+        <h1>Automatic Irrigation System</h1>
+        <div class="status" id="water-level-box">
+          <p>
+            Current Soil Moisture Level: <span id="moisture-level">--</span>
+          </p>
+          <p>Motor Status: <span id="motor-status">OFF</span></p>
+        </div>
+        <div class="pump-container">
+          <div class="pump">
+            <div class="water-bar" id="water-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- calender  -->
+    <h2 class="Irrigation-heading">Irrigation Calendar</h2>
+    <div class="calendar-container">
+      <header>
+        <button id="prevMonth">&lt;</button>
+        <h2 id="monthYear"></h2>
+        <button id="nextMonth">&gt;</button>
+      </header>
+      <table class="calendar">
+        <thead>
+          <tr>
+            <th>Sun</th>
+            <th>Mon</th>
+            <th>Tue</th>
+            <th>Wed</th>
+            <th>Thu</th>
+            <th>Fri</th>
+            <th>Sat</th>
+          </tr>
+        </thead>
+        <tbody id="calendarBody"></tbody>
+      </table>
+    </div>
+
+    <div id="noteModal" class="modal hidden">
+      <div class="modal-content">
+        <span id="closeModal">&times;</span>
+        <div class="first">
+          <h3>Add Note</h3>
+          <p id="selectedDate"></p>
+        </div>
+
+        <textarea
+          id="noteText"
+          placeholder="Write your note here..."
+        ></textarea>
+        <label for="noteTime">Time:</label>
+        <input type="time" id="noteTime" />
+
+        <button id="saveNote">Save Note</button>
+      </div>
+    </div>
+
+    <!-- the scripts for products you want to access must be added-->
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyBStoXU7AtRuNpHqJmOA9nMn7Y8kd7TbRE",
+        authDomain: "dht11-5ab79.firebaseapp.com",
+        databaseURL: "https://dht11-5ab79-default-rtdb.firebaseio.com",
+        projectId: "dht11-5ab79",
+        storageBucket: "dht11-5ab79.firebasestorage.app",
+        messagingSenderId: "335758690790",
+        appId: "1:335758690790:web:f5c08058b79904913e6e27",
+        measurementId: "G-XGQYBMZ7BY",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      // getting reference to the database
+      var database = firebase.database();
+
+      //getting reference to the data we want
+      var dataRef1 = database.ref("DHT_11/Humidity");
+      var dataRef2 = database.ref("DHT_11/Temperature");
+      var dataRef3 = database.ref("DHT_11/Soil_Moisture");
+
+      //fetch the data
+      dataRef1.on("value", function (getdata1) {
+        var humi = getdata1.val();
+        document.getElementById("humidity").innerHTML = humi + "%";
+      });
+
+      dataRef2.on("value", function (getdata2) {
+        var temp = getdata2.val();
+        document.getElementById("temperature").innerHTML = temp + "&#8451;";
+      });
+
+      dataRef3.on("value", function (getdata3) {
+        var soil = getdata3.val();
+        document.getElementById("soil").innerHTML = soil + "%";
+      });
+    </script>
+
+    <script src="calender.js"></script>
+
+    <script src="script.js"></script>
+    <!-- <script src="cahtgpt.js"></script> -->
+  </body>
+</html>
