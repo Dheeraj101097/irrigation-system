@@ -6,6 +6,7 @@
     <title>DHT Readings</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="calendar.css" />
+    <link rel="stylesheet" href="weather.css" />
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.js"
       integrity="sha512-7DgGWBKHddtgZ9Cgu8aGfJXvgcVv4SWSESomRtghob4k4orCBUTSRQ4s5SaC2Rz+OptMqNk0aHHsaUBk6fzIXw=="
@@ -44,13 +45,38 @@
       </div>
     </div>
 
-    <!-- charts -->
-    <div class="chart-div">
-      <div class="crop-chart">
-        <canvas id="myChart"></canvas>
+    <div class="chart-weather-box">
+      <!-- charts -->
+      <div class="chart-div">
+        <div class="crop-chart">
+          <canvas id="myChart"></canvas>
+        </div>
+      </div>
+      <!-- weather api -->
+      <div class="weather-container">
+        <div class="weather-card">
+          <div class="weather-heading">WEATHER FORECAST</div>
+          <input
+            type="text"
+            id="city-input"
+            class="border"
+            placeholder="Enter city name"
+            spellcheck="false"
+          />
+          <button class="button border">Get Weather</button>
+        </div>
+        <div class="weather-error">
+          <p>Invalid City name</p>
+        </div>
+        <div class="weather-data">
+          <div class="city">Pune</div>
+          <img class="img" src="rain.png" />
+          <div class="temp">22<sup>o</sup>C</div>
+          <div class="sky">sky</div>
+          <div class="windspeed">12Kmph</div>
+        </div>
       </div>
     </div>
-
     <!-- crops -->
 
     <div class="container">
@@ -188,6 +214,7 @@
     <script src="calender.js"></script>
 
     <script src="script.js"></script>
+    <script src="weather.js"></script>
     <!-- <script src="cahtgpt.js"></script> -->
   </body>
 </html>
