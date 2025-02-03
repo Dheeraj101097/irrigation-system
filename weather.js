@@ -27,19 +27,19 @@ async function checkweather(city) {
     sky.innerText = data.weather[0].description;
 
     if (data.weather[0].main === "Clouds") {
-      img.src = "cloud.png";
+      img.src = "images/cloud.png";
     } else if (data.weather[0].main === "Clear") {
-      img.src = "clear.png";
+      img.src = "images/clear.png";
     } else if (data.weather[0].main === "Rain") {
-      img.src = "rain.png";
+      img.src = "images/rain.png";
     } else if (data.weather[0].main === "Drizzle") {
-      img.src = "drizzle.png";
+      img.src = "images/drizzle.png";
     } else if (data.weather[0].main === "Mist") {
-      img.src = "mist.png";
+      img.src = "images/mist.png";
     } else if (data.weather[0].main === "Haze") {
-      img.src = "haze.png";
+      img.src = "images/haze.png";
     } else if (data.weather[0].main === "") {
-      img.src = "haze.png";
+      img.src = "images/haze.png";
     }
 
     document.querySelector(".weather-data").style.display = "block";
