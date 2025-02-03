@@ -1,83 +1,151 @@
-// Firebase configuration
-var firebaseConfig = {
-  apiKey: "AIzaSyBStoXU7AtRuNpHqJmOA9nMn7Y8kd7TbRE",
-  authDomain: "dht11-5ab79.firebaseapp.com",
-  databaseURL: "https://dht11-5ab79-default-rtdb.firebaseio.com",
-  projectId: "dht11-5ab79",
-  storageBucket: "dht11-5ab79.appspot.com",
-  messagingSenderId: "335758690790",
-  appId: "1:335758690790:web:f5c08058b79904913e6e27",
-  measurementId: "G-XGQYBMZ7BY",
-};
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-// Reference to the Firebase Realtime Database
-var database = firebase.database();
-// Variables to hold data
-let humidity = 0;
+// // Firebase configuration
+// var firebaseConfig = {
+//   apiKey: "AIzaSyBStoXU7AtRuNpHqJmOA9nMn7Y8kd7TbRE",
+//   authDomain: "dht11-5ab79.firebaseapp.com",
+//   databaseURL: "https://dht11-5ab79-default-rtdb.firebaseio.com",
+//   projectId: "dht11-5ab79",
+//   storageBucket: "dht11-5ab79.appspot.com",
+//   messagingSenderId: "335758690790",
+//   appId: "1:335758690790:web:f5c08058b79904913e6e27",
+//   measurementId: "G-XGQYBMZ7BY",
+// };
+// // Initialize Firebase
+// firebase.initializeApp(firebaseConfig);
+// // Reference to the Firebase Realtime Database
+// var database = firebase.database();
+// // Variables to hold data
+// let humidity = 0;
+// let temperature = 0;
+// let soilMoisture = 0;
+
+// // Fetch data and update DOM and chart
+// database.ref("DHT_11/Temperature").on("value", (snapshot) => {
+//   temperature = snapshot.val();
+//   document.getElementById("temperature").innerHTML = temperature + " &#8451;";
+//   updateChart();
+// });
+
+// database.ref("DHT_11/Humidity").on("value", (snapshot) => {
+//   humidity = snapshot.val();
+//   document.getElementById("humidity").innerHTML = humidity + " %";
+//   updateChart();
+// });
+
+// database.ref("DHT_11/Soil_Moisture").on("value", (snapshot) => {
+//   soilMoisture = snapshot.val();
+//   document.getElementById("soil").innerHTML = soilMoisture + " %";
+//   updateChart();
+// });
+const backendurl = "http://localhost:3000/data";
 let temperature = 0;
-let soilMoisture = 0;
+let humidity = 0;
+let soilmoisture = 0;
+async function checkWeather() {
+  try {
+    const response = await fetch(backendurl);
+    const data = await response.json();
+    temperature = data.temperature;
+    humidity = data.humidity;
+    soilmoisture = data.soilmoisture;
 
-// Fetch data and update DOM and chart
-database.ref("DHT_11/Temperature").on("value", (snapshot) => {
-  temperature = snapshot.val();
-  document.getElementById("temperature").innerHTML = temperature + " &#8451;";
-  updateChart();
-});
+    // Assuming the backend sends data like { temperature: 25, humidity: 60, soilMoisture: 300 }
+    document.getElementById(
+      "temperature"
+    ).innerHTML = `${data.temperature} &#8451;`;
+    document.getElementById("humidity").innerHTML = `${data.humidity} %`;
+    document.getElementById(
+      "soil-moisture"
+    ).innerHTML = `${data.soilmoisture} %`;
+    //
+    const ctx = document.getElementById("myChart").getContext("2d");
+    const chart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["Temperature", "Humidity", "Soil Moisture"],
+        datasets: [
+          {
+            label: "Graphical Representaion of data from sensor",
+            data: [temperature, humidity, soilmoisture],
+            backgroundColor: [
+              "rgba(255, 99, 132, 0.2)",
+              "rgba(54, 162, 235, 0.2)",
+              "rgba(75, 192, 192, 0.2)",
+            ],
+            borderColor: [
+              "rgba(255, 99, 132, 1)",
+              "rgba(54, 162, 235, 1)",
+              "rgba(75, 192, 192, 1)",
+            ],
+            borderWidth: 1,
+            barThickness: 75,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+          },
+        },
+      },
+    });
 
-database.ref("DHT_11/Humidity").on("value", (snapshot) => {
-  humidity = snapshot.val();
-  document.getElementById("humidity").innerHTML = humidity + " %";
-  updateChart();
-});
+    // Function to update chart dynamically
+    function updateChart() {
+      chart.data.datasets[0].data = [temperature, humidity, soilmoisture];
+      chart.update();
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}
 
-database.ref("DHT_11/Soil_Moisture").on("value", (snapshot) => {
-  soilMoisture = snapshot.val();
-  document.getElementById("soil").innerHTML = soilMoisture + " %";
-  updateChart();
-});
+// Call the function periodically
+setInterval(checkWeather, 1000); // Fetch every 10 seconds
 
 // Chart.js initialization
-const ctx = document.getElementById("myChart").getContext("2d");
-const chart = new Chart(ctx, {
-  type: "bar",
-  data: {
-    labels: ["Temperature", "Humidity", "Soil Moisture"],
-    datasets: [
-      {
-        label: "Graphical Representaion of data from sensor",
-        data: [temperature, humidity, soilMoisture],
-        backgroundColor: [
-          "rgba(255, 99, 132, 0.2)",
-          "rgba(54, 162, 235, 0.2)",
-          "rgba(75, 192, 192, 0.2)",
-        ],
-        borderColor: [
-          "rgba(255, 99, 132, 1)",
-          "rgba(54, 162, 235, 1)",
-          "rgba(75, 192, 192, 1)",
-        ],
-        borderWidth: 1,
-        barThickness: 75,
-      },
-    ],
-  },
-  options: {
-    responsive: true,
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: 100,
-      },
-    },
-  },
-});
+// const ctx = document.getElementById("myChart").getContext("2d");
+// const chart = new Chart(ctx, {
+//   type: "bar",
+//   data: {
+//     labels: ["Temperature", "Humidity", "Soil Moisture"],
+//     datasets: [
+//       {
+//         label: "Graphical Representaion of data from sensor",
+//         data: [temperature, humidity, soilmoisture],
+//         backgroundColor: [
+//           "rgba(255, 99, 132, 0.2)",
+//           "rgba(54, 162, 235, 0.2)",
+//           "rgba(75, 192, 192, 0.2)",
+//         ],
+//         borderColor: [
+//           "rgba(255, 99, 132, 1)",
+//           "rgba(54, 162, 235, 1)",
+//           "rgba(75, 192, 192, 1)",
+//         ],
+//         borderWidth: 1,
+//         barThickness: 75,
+//       },
+//     ],
+//   },
+//   options: {
+//     responsive: true,
+//     scales: {
+//       y: {
+//         beginAtZero: true,
+//         max: 100,
+//       },
+//     },
+//   },
+// });
 
-// Function to update chart dynamically
-function updateChart() {
-  chart.data.datasets[0].data = [temperature, humidity, soilMoisture];
-  chart.update();
-}
+// // Function to update chart dynamically
+// function updateChart() {
+//   chart.data.datasets[0].data = [temperature, humidity, soilmoisture];
+//   chart.update();
+// }
 //
 // for data set
 //
@@ -155,7 +223,7 @@ compareButton.addEventListener("click", () => {
 //
 //
 // for water pump// for water pump
-document.getElementById("moisture-level").innerHTML = soilMoisture;
+document.getElementById("moisture-level").innerHTML = soilmoisture;
 
 // Configuration
 const waterBar = document.getElementById("water-bar");
